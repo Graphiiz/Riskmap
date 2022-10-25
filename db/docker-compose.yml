@@ -1,7 +1,7 @@
 version: '3.3'
 services:
   db:
-    image: mysql
+    image: mysql:latest
     restart: always
     environment:
       MYSQL_DATABASE: 'db'
@@ -21,7 +21,6 @@ services:
     volumes:
       - /Users/graph/Documents/Riskmap-dev/db/mysql-volume:/var/lib/mysql
 
-
 # # Names our volume
-# volumes:
-#   my-db:
+volumes:
+  mysql-volume:

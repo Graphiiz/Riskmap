@@ -1,7 +1,27 @@
 package data
 
-type OverviewRM struct {
-	// struct of data for overview map
+type RM struct {
+	EVDevice   string  `json:"ev_device"`
+	EVType     string  `json:"ev_type"`
+	FaultType  string  `json:"fault_type"`
+	Amp        float64 `json:"amp"`
+	DeviceID   string  `json:"device_id"`
+	AOJName    string  `json:"aoj_name"`
+	AOJCode    string  `json:"aoj_code"`
+	Longtitude float64 `json:"long"`
+	Latitude   float64 `json:"lat"`
+
+	// cluster data
+	CenterX float64 `json:"center_x"`
+	CenterY float64 `json:"center_y"`
+	Radius  float64 `json:"radius"`
+	Count   int     `json:"count"`
+
+	// MJM Data
+	WorkName   string `json:"work_name"`
+	WorkType   string `json:"work_type"`
+	WorkStatus int    `json:"work_status"` // 0  = todo, 1 = doing, 2 = done
+	PEAArea    string `json:"pea_area"`    // ex. C1, NE3
 
 }
 
@@ -9,27 +29,27 @@ type ZoomedRM struct {
 	// struct of data for zoomed in map
 }
 
-type RM struct {
+type OverviewRM struct {
 	Cluster   []Point `json:"cluster"`
-	I         float64 `json:"current"`
-	Date      string  `json:"date"`
-	Type      string  `json:"type"`
-	EVDevice  string  `json:"equipment_code"`
-	PEAName   string  `json:"pea_name"`
-	FaultType int     `json:"fault_type"`
-
-	// MJM Data
-	WorkName     string `json:"work_name"` // gen from riskmap
-	WorkType     string `json:"work_type"`
-	WorkStatus   string `json:"work_status"` // 0  = todo, 1 = doing, 2 = done
-	Customers    int    `json:"customers"`   // number of afected customers
-	DateFinished string `json:"date_finished"`
+	Date      string  `json:"date"` // created_date of work order
+	EVType    string  `json:"ev_type"`
+	EVDevice  string  `json:"ev_device"`
+	FaultType string  `json:"fault_type"`
+	Amp       float64 `json:"amp"`
+	PEAName   string  `json:"pea_name"` // = aoj_name
 
 	// Clustering Data
-	CenterX float64 `json:"cluster_center_longtitude"`
-	CenterY float64 `json:"cluster_center_latitude"`
+	CenterX float64 `json:"cluster_center_long"`
+	CenterY float64 `json:"cluster_center_lat"`
 	Radius  float64 `json:"cluster_radius"` // to be changed according to circle plotting requirement
 	Count   int     `json:"priority_count"`
+
+	// MJM Data
+	WorkName   string `json:"work_name"` // gen from riskmap
+	WorkType   string `json:"work_type"`
+	WorkStatus int    `json:"work_status"` // 0  = todo, 1 = doing, 2 = done
+	// Customers    int    `json:"customers"`   // number of afected customers
+	DateFinished string `json:"date_finished"`
 
 	PEAArea string `json:"pea_area"`
 }
