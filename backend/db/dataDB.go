@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"reflect"
@@ -10,36 +11,31 @@ import (
 
 type RMDB struct {
 	gorm.Model
-
 	// SFLA Data
-	ID         int `gorm:"primaryKey"`
-	Latitude   string
-	Longtitude string
-	I          float64
-	Date       string
-	Time       string
-	DeviceID   string // feeder id
-	Type       string
+	ID         int    `gorm:"primaryKey"`
 	EVDevice   string // equipment id
-	PEAName    string
-	PEACode    string
-	FaultType  int
+	EVType     string // TR/TL
+	FaultType  string
+	Amp        float64
+	DeviceID   string // feeder id
+	AOJName    string // PEA name
+	AOJCode    string // PEA code
+	Longtitude float64
+	Latitude   float64
 
-	// MJM Data
-	WorkName     string `gorm:"primaryKey"` // gen from riskmap
-	WorkType     string
-	WorkStatus   string // 0  = todo, 1 = doing, 2 = done
-	Customers    int    // number of afected customers
-	DateFinished string
-
-	// Clustering Data
+	// cluster data
 	CenterX float64
 	CenterY float64
 	Radius  float64 // to be changed according to circle plotting requirement
 	Count   int     // number of distinct incident the points come from
-	Archive bool    // may not be used
 
-	PEAArea string
+	// MJM Data
+	WorkName     string `gorm:"primaryKey"` // gen from riskmap
+	WorkType     string
+	WorkStatus   int // 0  = todo, 1 = doing, 2 = done
+	DateFinished sql.NullTime
+
+	PEAArea string // ex. C1, NE3
 }
 
 type MJMDB struct {
@@ -111,32 +107,8 @@ func WriteSFLAData(sfla SFLADB) error {
 	return nil
 }
 
-func WriteRMData() error {
+func WriteRMData(rm []RMDB) error {
 	db := DB()
-	rm := RMDB{
-		Latitude:     "121.105",
-		Longtitude:   "111.135",
-		I:            10.0,
-		Date:         "2021-11-5",
-		Time:         "01:05:11.666",
-		DeviceID:     "PYU06",
-		Type:         "TL",
-		EVDevice:     "ABC07",
-		PEAName:      "กฟฟ.อุบลราชธานี",
-		PEACode:      "zzz",
-		FaultType:    1,
-		WorkName:     "RM_65_05_KTM_00002",
-		WorkType:     "a",
-		WorkStatus:   "2",
-		Customers:    10,
-		DateFinished: "2021-11-15",
-		CenterX:      1.0,
-		CenterY:      2.0,
-		Radius:       1.0,
-		Count:        3,
-		Archive:      true,
-	}
-	// SFLA has only create, same location but differ in time will be treated as another location
 
 	if err := db.Table("RM").Create(&rm).Error; err != nil {
 		return err
@@ -144,7 +116,7 @@ func WriteRMData() error {
 	return nil
 }
 
-func ReadRMData(area string, name string, status string) (*[]RMDB, error) {
+func ReadRMData(area string) (*[]RMDB, error) {
 	db := DB()
 	var rmData []RMDB
 	if err := db.Table("RM").Where("pea_area = ?", area).Find(&rmData).Error; err != nil {

@@ -38,9 +38,11 @@ func main() {
 	e.POST("/MJM", d.UpdateFromMJM)
 
 	// for test migration, remove before going to production
-	e.POST("/RM", d.UpdateRMData)
+	// e.POST("/RM", d.UpdateRMData)
 
-	e.GET("/RM/:area/:name/:status", d.GetOverviewData)
+	e.POST("/RM/create", d.CreateRMData)
+
+	e.GET("/RM/:area", d.GetOverviewData)
 
 	e.Logger.Fatal(e.Start(":1234"))
 
