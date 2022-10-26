@@ -12,16 +12,16 @@ import (
 type RMDB struct {
 	gorm.Model
 	// SFLA Data
-	ID         int    `gorm:"primaryKey"`
-	EVDevice   string // equipment id
-	EVType     string // TR/TL
-	FaultType  string
-	Amp        float64
-	DeviceID   string // feeder id
-	AOJName    string // PEA name
-	AOJCode    string // PEA code
-	Longtitude float64
-	Latitude   float64
+	ID        int    `gorm:"primaryKey"`
+	EVDevice  string // equipment id
+	EVType    string // TR/TL
+	FaultType string
+	Amp       float64
+	DeviceID  string // feeder id
+	AOJName   string // PEA name
+	AOJCode   string // PEA code
+	Longitude float64
+	Latitude  float64
 
 	// cluster data
 	CenterX float64
@@ -35,7 +35,8 @@ type RMDB struct {
 	WorkStatus   int // 0  = todo, 1 = doing, 2 = done
 	DateFinished sql.NullTime
 
-	PEAArea string // ex. C1, NE3
+	PEAArea     string // ex. C1, NE3
+	PEAInCharge string
 }
 
 type MJMDB struct {
@@ -49,18 +50,18 @@ type MJMDB struct {
 
 type SFLADB struct {
 	gorm.Model
-	ID         int `gorm:"primaryKey"`
-	Latitude   string
-	Longtitude string
-	I          float64
-	Date       string
-	Time       string
-	DeviceID   string
-	Type       string
-	EVDevice   string
-	PEAName    string
-	PEACode    string
-	FaultType  int
+	ID        int `gorm:"primaryKey"`
+	Latitude  string
+	Longitude string
+	I         float64
+	Date      string
+	Time      string
+	DeviceID  string
+	Type      string
+	EVDevice  string
+	PEAName   string
+	PEACode   string
+	FaultType int
 }
 
 func WriteMJMData(mjm MJMDB) error {

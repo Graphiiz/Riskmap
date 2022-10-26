@@ -41,17 +41,17 @@ func UpdateFromSFLA(c echo.Context) error {
 
 	// map MJM struct to MJMDB struct
 	sflaDB := rmdb.SFLADB{
-		Latitude:   sfla.Latitude,
-		Longtitude: sfla.Longtitude,
-		I:          sfla.I,
-		Date:       sfla.Date,
-		Time:       sfla.Time,
-		DeviceID:   sfla.DeviceID,
-		Type:       sfla.Type,
-		EVDevice:   sfla.EVDevice,
-		PEAName:    sfla.PEAName,
-		PEACode:    sfla.PEACode,
-		FaultType:  sfla.FaultType,
+		Latitude:  sfla.Latitude,
+		Longitude: sfla.Longitude,
+		I:         sfla.I,
+		Date:      sfla.Date,
+		Time:      sfla.Time,
+		DeviceID:  sfla.DeviceID,
+		Type:      sfla.Type,
+		EVDevice:  sfla.EVDevice,
+		PEAName:   sfla.PEAName,
+		PEACode:   sfla.PEACode,
+		FaultType: sfla.FaultType,
 	}
 	// write SFLA data to DB
 	if err := rmdb.WriteSFLAData(sflaDB); err != nil {
@@ -87,7 +87,7 @@ func GetOverviewData(c echo.Context) error {
 		// x, _ := strconv.ParseFloat((*rmData)[i].Latitude, 64)
 
 		// y, _ := strconv.ParseFloat((*rmData)[i].Longtitude, 64)
-		x := (*rmData)[i].Longtitude
+		x := (*rmData)[i].Longitude
 		y := (*rmData)[i].Latitude
 
 		clusters[(*rmData)[i].WorkName] = append(clusters[(*rmData)[i].WorkName], Point{i + 1, x, y})
@@ -103,7 +103,7 @@ func GetOverviewData(c echo.Context) error {
 			EVDevice:  (*rmData)[value[0].Id].EVDevice,
 			FaultType: (*rmData)[value[0].Id].FaultType,
 			Amp:       (*rmData)[value[0].Id].Amp,
-			PEAName:   (*rmData)[value[0].Id].AOJName,
+			PEAName:   (*rmData)[value[0].Id].PEAInCharge,
 
 			CenterX: (*rmData)[value[0].Id].CenterX,
 			CenterY: (*rmData)[value[0].Id].CenterY,
@@ -138,23 +138,24 @@ func CreateRMData(c echo.Context) error {
 
 	for _, value := range rm {
 		rmdb := rmdb.RMDB{
-			EVDevice:   value.EVDevice,
-			EVType:     value.EVType,
-			FaultType:  value.FaultType,
-			Amp:        value.Amp,
-			DeviceID:   value.DeviceID,
-			AOJName:    value.AOJName,
-			AOJCode:    value.AOJCode,
-			Longtitude: value.Longtitude,
-			Latitude:   value.Latitude,
-			CenterX:    value.CenterX,
-			CenterY:    value.CenterY,
-			Radius:     value.Radius,
-			Count:      value.Count,
-			WorkName:   value.WorkName,
-			WorkType:   value.WorkType,
-			WorkStatus: value.WorkStatus,
-			PEAArea:    value.PEAArea,
+			EVDevice:    value.EVDevice,
+			EVType:      value.EVType,
+			FaultType:   value.FaultType,
+			Amp:         value.Amp,
+			DeviceID:    value.DeviceID,
+			AOJName:     value.AOJName,
+			AOJCode:     value.AOJCode,
+			Longitude:   value.Longitude,
+			Latitude:    value.Latitude,
+			CenterX:     value.CenterX,
+			CenterY:     value.CenterY,
+			Radius:      value.Radius,
+			Count:       value.Count,
+			WorkName:    value.WorkName,
+			WorkType:    value.WorkType,
+			WorkStatus:  value.WorkStatus,
+			PEAArea:     value.PEAArea,
+			PEAInCharge: value.PEAInCharge,
 		}
 		rmdbs = append(rmdbs, rmdb)
 	}

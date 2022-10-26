@@ -1,15 +1,15 @@
 package data
 
 type RM struct {
-	EVDevice   string  `json:"ev_device"`
-	EVType     string  `json:"ev_type"`
-	FaultType  string  `json:"fault_type"`
-	Amp        float64 `json:"amp"`
-	DeviceID   string  `json:"device_id"`
-	AOJName    string  `json:"aoj_name"`
-	AOJCode    string  `json:"aoj_code"`
-	Longtitude float64 `json:"long"`
-	Latitude   float64 `json:"lat"`
+	EVDevice  string  `json:"ev_device"`
+	EVType    string  `json:"ev_type"`
+	FaultType string  `json:"fault_type"`
+	Amp       float64 `json:"amp"`
+	DeviceID  string  `json:"device_id"`
+	AOJName   string  `json:"aoj_name"`
+	AOJCode   string  `json:"aoj_code"`
+	Longitude float64 `json:"long"`
+	Latitude  float64 `json:"lat"`
 
 	// cluster data
 	CenterX float64 `json:"center_x"`
@@ -18,10 +18,11 @@ type RM struct {
 	Count   int     `json:"count"`
 
 	// MJM Data
-	WorkName   string `json:"work_name"`
-	WorkType   string `json:"work_type"`
-	WorkStatus int    `json:"work_status"` // 0  = todo, 1 = doing, 2 = done
-	PEAArea    string `json:"pea_area"`    // ex. C1, NE3
+	WorkName    string `json:"work_name"`
+	WorkType    string `json:"work_type"`
+	WorkStatus  int    `json:"work_status"`   // 0  = todo, 1 = doing, 2 = done
+	PEAArea     string `json:"pea_area"`      // ex. C1, NE3
+	PEAInCharge string `json:"pea_in_charge"` // pea office which majority of points in cluster came from
 
 }
 
@@ -57,7 +58,7 @@ type OverviewRM struct {
 type Point struct {
 	Id   int     `json:"-"`
 	Lat  float64 `json:"latitude"`
-	Long float64 `json:"longtitude"`
+	Long float64 `json:"longitude"`
 }
 
 type MJM struct {
@@ -68,15 +69,15 @@ type MJM struct {
 }
 
 type SFLA struct {
-	Latitude   string  `json:"lat"`
-	Longtitude string  `json:"long"`
-	I          float64 `json:"i"`
-	Date       string  `json:"date"` // may retrieve from created at
-	Time       string  `json:"time"` // may retrieve from created at
-	DeviceID   string  `json:"dev_id"`
-	Type       string  `json:"type"`
-	EVDevice   string  `json:"evDevice"`
-	PEAName    string  `json:"PEA"`
-	PEACode    string  `json:"PEA_code"`
-	FaultType  int     `json:"typeFLT"`
+	Latitude  string  `json:"lat"`
+	Longitude string  `json:"long"`
+	I         float64 `json:"i"`
+	Date      string  `json:"date"` // may retrieve from created at
+	Time      string  `json:"time"` // may retrieve from created at
+	DeviceID  string  `json:"dev_id"`
+	Type      string  `json:"type"`
+	EVDevice  string  `json:"evDevice"`
+	PEAName   string  `json:"PEA"`
+	PEACode   string  `json:"PEA_code"`
+	FaultType int     `json:"typeFLT"`
 }
