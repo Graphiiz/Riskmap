@@ -16,19 +16,6 @@ func main() {
 
 	e.Use(middleware.CORS())
 
-	// // for API connection test
-	// e.GET("/", func(c echo.Context) error {
-	// 	return c.String(http.StatusOK, "Hello")
-	// })
-
-	// e.POST("/SFLA", func(c echo.Context) error {
-	// 	return c.String(http.StatusOK, "SFLA API OK")
-	// })
-
-	// e.POST("/MJM", func(c echo.Context) error {
-	// 	return c.String(http.StatusOK, "MJM API OK")
-	// })
-
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello")
 	})
@@ -37,12 +24,11 @@ func main() {
 
 	e.POST("/MJM", d.UpdateFromMJM)
 
-	// for test migration, remove before going to production
-	// e.POST("/RM", d.UpdateRMData)
-
 	e.POST("/RM/create", d.CreateRMData)
 
-	e.GET("/RM/:area", d.GetOverviewData)
+	e.GET("/RM", d.GetOverviewData)
+
+	e.GET("/RM/filter_bar/:area", d.GetFilterBarData)
 
 	e.Logger.Fatal(e.Start(":1234"))
 

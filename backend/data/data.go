@@ -26,18 +26,22 @@ type RM struct {
 
 }
 
-type ZoomedRM struct {
-	// struct of data for zoomed in map
+type FilterBarData struct {
+	Areas    []string `json:"areas"`
+	PEAName  []string `json:"pea_names"`
+	EVDevice []string `json:"ev_devices"`
+	Status   []string `json:"status"`
+	WorkType []string `json:"work_type"`
 }
 
 type OverviewRM struct {
-	Cluster   []Point `json:"cluster"`
-	Date      string  `json:"date"` // created_date of work order
-	EVType    string  `json:"ev_type"`
-	EVDevice  string  `json:"ev_device"`
-	FaultType string  `json:"fault_type"`
-	Amp       float64 `json:"amp"`
-	PEAName   string  `json:"pea_name"` // = aoj_name
+	Cluster   []Point  `json:"cluster"`
+	Date      string   `json:"date"` // created_date of work order
+	EVType    string   `json:"ev_type"`
+	EVDevice  []string `json:"ev_device"`
+	FaultType string   `json:"fault_type"`
+	Amp       float64  `json:"amp"`
+	PEAName   string   `json:"pea_name"` // = aoj_name
 
 	// Clustering Data
 	CenterX float64 `json:"cluster_center_long"`

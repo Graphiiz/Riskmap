@@ -48,6 +48,11 @@ type MJMDB struct {
 	AOJCode    string
 }
 
+type FilterBarDataDB struct {
+	PEAName  string
+	EVDevice string
+}
+
 type SFLADB struct {
 	gorm.Model
 	ID        int `gorm:"primaryKey"`
@@ -117,10 +122,22 @@ func WriteRMData(rm []RMDB) error {
 	return nil
 }
 
-func ReadRMData(area string) (*[]RMDB, error) {
+func ReadDataForFilterBar(area string) (*[]RMDB, error) {
+	// todo change to select statement instead of where
 	db := DB()
+
 	var rmData []RMDB
 	if err := db.Table("RM").Where("pea_area = ?", area).Find(&rmData).Error; err != nil {
+		return nil, err
+	}
+	fmt.Println(rmData[0])
+	return &rmData, nil
+}
+
+func ReadRMData(options map[string]interface{}) (*[]RMDB, error) {
+	db := DB()
+	var rmData []RMDB
+	if err := db.Table("RM").Where(options).Find(&rmData).Error; err != nil {
 		return nil, err
 	}
 
