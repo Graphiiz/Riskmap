@@ -1,46 +1,6 @@
 ### API Test
 http://127.0.0.1:1234/
 
-### SFLA API Test
-POST  http://127.0.0.1:1234/SFLA
-Content-Type: application/json
-
-{
-		"lat": "100.100",
-		"long": "111.111",
-		"i": 15.0,
-		"date": "2021-11-1",
-		"time": "15:15:44.123",
-		"dev_id": "xxx",
-		"type": "TR",
-		"evDevice": "yyy",
-		"PEA": "กฟฟ.ยโสธร",
-		"PEA_code": "zzz",
-		"typeFLT": 1
-}
-
-### MJM API Test
-POST  http://127.0.0.1:1234/MJM
-Content-Type: application/json
-
-{
-		"WORK_ID": 29467,
-		"WORK_NAME": "RM_65_05_KTM_00001",
-		"WORK_STATUS": "3",
-		"AOJ_CODE": "0502501"
-}
-
-### RM API Test
-POST  http://127.0.0.1:1234/RM
-Content-Type: application/json
-
-{
-		"WORK_ID": 29467,
-		"WORK_NAME": "RM_65_05_KTM_00001",
-		"WORK_STATUS": "3",
-		"AOJ_CODE": "0502501"
-}
-
 ### API FE GET Test
 http://127.0.0.1:1234/RM?area=05
 
