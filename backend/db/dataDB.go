@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sort"
 
 	"gorm.io/gorm"
 )
@@ -49,8 +50,8 @@ type MJMDB struct {
 }
 
 type FilterBarDataDB struct {
-	PEAName  string
-	EVDevice string
+	PEAName  []string
+	EVDevice []string
 }
 
 type SFLADB struct {
@@ -122,16 +123,25 @@ func WriteRMData(rm []RMDB) error {
 	return nil
 }
 
-func ReadDataForFilterBar(area string) (*[]RMDB, error) {
+func ReadDataForFilterBar(area string) (*FilterBarDataDB, error) {
 	// todo change to select statement instead of where
 	db := DB()
 
-	var rmData []RMDB
-	if err := db.Table("RM").Where("pea_area = ?", area).Find(&rmData).Error; err != nil {
+	var filterBarData FilterBarDataDB
+	var peaName []string
+	var evDevice []string
+
+	if err := db.Table("RM").Select("aoj_name").Distinct("aoj_name").Scan(&peaName).Error; err != nil {
 		return nil, err
 	}
-	fmt.Println(rmData[0])
-	return &rmData, nil
+	if err := db.Table("RM").Select("ev_device").Distinct("ev_device").Scan(&evDevice).Error; err != nil {
+		return nil, err
+	}
+	sort.Strings(peaName)
+	sort.Strings(evDevice)
+	filterBarData.PEAName, filterBarData.EVDevice = peaName, evDevice
+
+	return &filterBarData, nil
 }
 
 func ReadRMData(options map[string]interface{}) (*[]RMDB, error) {

@@ -76,33 +76,13 @@ func GetFilterBarData(c echo.Context) error {
 	if err != nil {
 		fmt.Println(err)
 		// not found
-		return c.String(http.StatusNotFound, "Cannot get Riskmap data or not found")
+		return c.String(http.StatusNotFound, "Cannot get filter bar data or not found")
 	}
-	peaNames := make(map[string]struct{})
-	evDevices := make(map[string]struct{})
-
-	for i := 0; i < len(*data); i++ {
-		peaNames[(*data)[i].PEAInCharge] = struct{}{}
-		evDevices[(*data)[i].EVDevice] = struct{}{}
-	}
-
-	names := make([]string, 0, len(peaNames))
-	devices := make([]string, 0, len(evDevices))
-
-	for k := range peaNames {
-		names = append(names, k)
-	}
-	for k := range evDevices {
-		devices = append(devices, k)
-	}
-
-	sort.Strings(names)
-	sort.Strings(devices)
 
 	fbData := FilterBarData{
 		Areas:    []string{"กฟน.1", "กฟน.2", "กฟน.3", "กฟฉ.1", "กฟฉ.2", "กฟฉ.3", "กฟก.1", "กฟก.2", "กฟก.3", "กฟต.1", "กฟต.2", "กฟต.3"},
-		PEAName:  names,
-		EVDevice: devices,
+		PEAName:  data.PEAName,
+		EVDevice: data.EVDevice,
 		Status:   []string{"Todo", "Doing", "Done"},
 		WorkType: []string{"งานตรวจตราระบบจำหน่าย"},
 	}
