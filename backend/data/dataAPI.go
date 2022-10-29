@@ -162,6 +162,8 @@ func GetOverviewData(c echo.Context) error {
 		for device := range evDevices[k] {
 			evDeviceDistinct = append(evDeviceDistinct, device)
 		}
+		sort.Strings(evDeviceDistinct)
+
 		workOrder := OverviewRM{
 			Cluster:   clusters[k],
 			Date:      (*rmData)[clusters[k][0].Id].CreatedAt.String(),
