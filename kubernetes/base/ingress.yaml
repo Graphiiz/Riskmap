@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+    nginx.ingress.kubernetes.io/server-snippet: |
+      server_tokens off;
+  name: api-riskmap
+spec:
+  rules:
+  - host: $(ING_NAME).pea.co.th
+    http:
+      paths:
+      - backend:
+          service:
+            name: api-riskmap
+            port:
+              number: 80
+        path: /
+        pathType: Prefix

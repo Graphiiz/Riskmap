@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-riskmap
+  labels:
+    app: api-riskmap
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-riskmap
+  template:
+    metadata:
+      labels:
+        app: api-riskmap
+    spec:
+      containers:
+      - name: primary
+        image: ${image}
+        envFrom:
+          - configMapRef:
+              name: api-riskmap-config
+          - secretRef:
+              name: api-riskmap-secret
+        ports:
+        - name: api-port
+          containerPort: 1234
+          protocol: TCP
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            memory: 100Mi
+        imagePullPolicy: Always
+      imagePullSecrets:
+      - name: harbor-regcred
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: api-riskmap
+spec:
+  selector:
+    app: api-riskmap
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 1234
+  type: ClusterIP

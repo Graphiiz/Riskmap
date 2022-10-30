@@ -1,0 +1,13 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-riskmap
+spec:
+  tls:
+    - hosts:
+        - "api-riskmap-ing-dev.pea.co.th"
+      secretName: api-riskmap-tls-secret
+
+
+
+

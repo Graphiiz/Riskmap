@@ -1,0 +1,13 @@
+resources:
+- manifest.yaml
+- configmap.yaml
+- secret.yaml
+- ingress.yaml
+vars:
+- name: ING_NAME
+  objref:
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    name: api-riskmap
+  fieldref:
+    fieldpath: metadata.name
