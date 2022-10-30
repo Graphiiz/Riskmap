@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-riskmap-config
+data:
+  FRONTEND_HOST: $BASE_URL_PROD
+  DJANGO_SETTINGS_MODULE: $DJANGO_SETTINGS_PROD

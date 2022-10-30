@@ -1,0 +1,24 @@
+bases:
+- ../../base
+- tls-secret.yaml
+images:
+- name: ${image}
+  newTag: ${imageTag}
+nameSuffix: -dev
+commonLabels:
+  app: api-riskmap-dev
+patchesStrategicMerge:
+- patch.yaml
+- secret-patch.yaml
+- ingress-patch.yaml
+patches:
+  - target:
+      kind: Ingress
+      name: api-riskmap
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: api-riskmap-ing-dev.pea.co.th
+        
+
+
