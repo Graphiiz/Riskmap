@@ -11,4 +11,5 @@
     go mod tidy
 - run command:
     go run server.go
+    
 Backend will serve frontend via port 1234
