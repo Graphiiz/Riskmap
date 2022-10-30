@@ -73,15 +73,14 @@ type MJM struct {
 }
 
 type SFLA struct {
-	Latitude  string  `json:"lat"`
-	Longitude string  `json:"long"`
-	I         float64 `json:"i"`
-	Date      string  `json:"date"` // may retrieve from created at
-	Time      string  `json:"time"` // may retrieve from created at
+	DbTime    string  `json:"db_time"`
+	EVDevice  string  `json:"ev_device"`
+	EVType    string  `json:"ev_type"`
+	FaultType string  `json:"fault_type"`
+	Amp       float64 `json:"amp"`
+	Latitude  float64 `json:"lat"`
+	Longitude float64 `json:"long"`
 	DeviceID  string  `json:"dev_id"`
-	Type      string  `json:"type"`
-	EVDevice  string  `json:"evDevice"`
-	PEAName   string  `json:"PEA"`
-	PEACode   string  `json:"PEA_code"`
-	FaultType int     `json:"typeFLT"`
+	AOJName   string  `json:"aoj_name"`
+	AOJCode   string  `json:"aoj_code"`
 }

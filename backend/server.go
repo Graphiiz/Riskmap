@@ -20,7 +20,9 @@ func main() {
 		return c.String(http.StatusOK, "Hello")
 	})
 
-	e.POST("/SFLA", d.UpdateFromSFLA)
+	e.GET("/SFLA", d.GetSFLAData)
+
+	e.POST("/SFLA", d.WriteFromSFLA)
 
 	e.POST("/MJM", d.UpdateFromMJM)
 

@@ -57,17 +57,17 @@ type FilterBarDataDB struct {
 type SFLADB struct {
 	gorm.Model
 	ID        int `gorm:"primaryKey"`
-	Latitude  string
-	Longitude string
-	I         float64
-	Date      string
-	Time      string
-	DeviceID  string
-	Type      string
+	DbTime    string
 	EVDevice  string
-	PEAName   string
-	PEACode   string
-	FaultType int
+	EVType    string
+	FaultType string
+	Amp       float64
+	Latitude  float64
+	Longitude float64
+	DeviceID  string
+	AOJName   string
+	AOJCode   string
+	Archive   bool
 }
 
 func WriteMJMData(mjm MJMDB) error {
@@ -103,15 +103,24 @@ func WriteMJMData(mjm MJMDB) error {
 
 }
 
-func WriteSFLAData(sfla SFLADB) error {
+func WriteSFLAData(sfla []SFLADB) error {
 	db := DB()
 
 	// SFLA has only create, same location but differ in time will be treated as another location
-
 	if err := db.Table("SFLA").Create(&sfla).Error; err != nil {
 		return err
 	}
 	return nil
+}
+
+func ReadSFLAData() (*[]SFLADB, error) {
+	db := DB()
+	var sflaData []SFLADB
+	if err := db.Table("SFLA").Where("archive = ?", false).Find(&sflaData).Error; err != nil {
+		return nil, err
+	}
+	fmt.Println(sflaData[0])
+	return &sflaData, nil
 }
 
 func WriteRMData(rm []RMDB) error {
@@ -144,11 +153,25 @@ func ReadDataForFilterBar(area string) (*FilterBarDataDB, error) {
 	return &filterBarData, nil
 }
 
-func ReadRMData(options map[string]interface{}) (*[]RMDB, error) {
+func ReadRMData(options map[string]interface{}, startDate string, endDate string) (*[]RMDB, error) {
 	db := DB()
 	var rmData []RMDB
-	if err := db.Table("RM").Where(options).Find(&rmData).Error; err != nil {
-		return nil, err
+	if startDate == "" && endDate == "" {
+		if err := db.Table("RM").Where(options).Find(&rmData).Error; err != nil {
+			return nil, err
+		}
+	} else if startDate != "" && endDate == "" {
+		if err := db.Table("RM").Where(options).Where("created_at >= ?", startDate).Find(&rmData).Error; err != nil {
+			return nil, err
+		}
+	} else if startDate == "" && endDate != "" {
+		if err := db.Table("RM").Where(options).Where("created_at <= ?", endDate).Find(&rmData).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		if err := db.Table("RM").Where(options).Where("created_at BETWEEN ? AND ?", startDate, endDate).Find(&rmData).Error; err != nil {
+			return nil, err
+		}
 	}
 
 	return &rmData, nil

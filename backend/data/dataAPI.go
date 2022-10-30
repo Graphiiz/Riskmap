@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 
 	"net/http"
 
@@ -33,33 +34,64 @@ func UpdateFromMJM(c echo.Context) error {
 	return c.String(http.StatusOK, "MJM API OK")
 }
 
-func UpdateFromSFLA(c echo.Context) error {
-
-	// bind data from http to MJM struct
-	sfla := SFLA{}
-	if err := c.Bind(&sfla); err != nil {
+func WriteFromSFLA(c echo.Context) error {
+	sflaData := []SFLA{}
+	if err := c.Bind(&sflaData); err != nil {
 		return err
 	}
+	// write RM data to DB
+	sflaDBs := []rmdb.SFLADB{}
 
-	// map MJM struct to MJMDB struct
-	sflaDB := rmdb.SFLADB{
-		Latitude:  sfla.Latitude,
-		Longitude: sfla.Longitude,
-		I:         sfla.I,
-		Date:      sfla.Date,
-		Time:      sfla.Time,
-		DeviceID:  sfla.DeviceID,
-		Type:      sfla.Type,
-		EVDevice:  sfla.EVDevice,
-		PEAName:   sfla.PEAName,
-		PEACode:   sfla.PEACode,
-		FaultType: sfla.FaultType,
+	for _, value := range sflaData {
+		// map SLFA struct to SFLADB struct
+		sflaDB := rmdb.SFLADB{
+			DbTime:    value.DbTime,
+			EVDevice:  value.EVDevice,
+			EVType:    value.EVType,
+			FaultType: value.FaultType,
+			Amp:       value.Amp,
+			Latitude:  value.Latitude,
+			Longitude: value.Longitude,
+			DeviceID:  value.DeviceID,
+			AOJName:   value.AOJName,
+			AOJCode:   value.AOJCode,
+			Archive:   false,
+		}
+		sflaDBs = append(sflaDBs, sflaDB)
 	}
-	// write SFLA data to DB
-	if err := rmdb.WriteSFLAData(sflaDB); err != nil {
-		return c.String(http.StatusExpectationFailed, "Updata SFLA data Fail")
+
+	if err := rmdb.WriteSFLAData(sflaDBs); err != nil {
+		return c.String(http.StatusExpectationFailed, "Create SFLA data Fail")
 	}
-	return c.String(http.StatusOK, "SFLA API OK")
+	return c.String(http.StatusOK, "Create SFLA API OK")
+
+}
+
+func GetSFLAData(c echo.Context) error {
+	data, err := rmdb.ReadSFLAData()
+	if err != nil {
+		fmt.Println(err)
+		// not found
+		return c.String(http.StatusNotFound, "Cannot get sfla data or not found")
+	}
+	fmt.Println((*data)[0])
+	var sflaData []SFLA
+	for _, value := range *data {
+		sfla := SFLA{
+			DbTime:    value.DbTime,
+			EVDevice:  value.EVDevice,
+			EVType:    value.EVType,
+			FaultType: value.FaultType,
+			Amp:       value.Amp,
+			Latitude:  value.Latitude,
+			Longitude: value.Longitude,
+			DeviceID:  value.DeviceID,
+			AOJName:   value.AOJName,
+			AOJCode:   value.AOJCode,
+		}
+		sflaData = append(sflaData, sfla)
+	}
+	return c.JSON(http.StatusOK, sflaData)
 }
 
 // func UpdateRMData(c echo.Context) error {
@@ -96,6 +128,8 @@ func GetOverviewData(c echo.Context) error {
 	device := c.QueryParam("device")
 	wtype := c.QueryParam("type")
 	status := c.QueryParam("status")
+	start := c.QueryParam("start_date") // created_at from date = start
+	end := c.QueryParam("end_date")     // to date = end
 
 	options := make(map[string]interface{})
 	if area != "" {
@@ -117,14 +151,18 @@ func GetOverviewData(c echo.Context) error {
 		}
 		options["work_status"] = status_int
 	}
+	// Incoming format: "2022-10-30T22:04:00.000Z"
+	replacer := strings.NewReplacer("T", " ", "Z", "")
+	startDate := replacer.Replace(start)
+	endDate := replacer.Replace(end)
 
-	rmData, err := rmdb.ReadRMData(options)
+	rmData, err := rmdb.ReadRMData(options, startDate, endDate)
 	if err != nil {
 		fmt.Println(err)
 		// not found
 		return c.String(http.StatusNotFound, "Cannot get Riskmap data or not found")
 	}
-
+	// fmt.Println(len(*rmData))
 	// create a map storing slice of points of each cluster
 	clusters := make(map[string][]Point)
 	evDevices := make(map[string]map[string]struct{})
@@ -189,10 +227,8 @@ func GetOverviewData(c echo.Context) error {
 		workOrders = append(workOrders, workOrder)
 	}
 
-	// fmt.Println(workOrders[:10])
+	// fmt.Println(workOrders[0].Date)
 
-	// todo - change to c.JSON and create http response
-	// return c.String(http.StatusOK, "GET RM API OK")
 	return c.JSON(http.StatusOK, workOrders)
 }
 
