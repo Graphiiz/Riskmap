@@ -136,7 +136,7 @@ func GetOverviewData(c echo.Context) error {
 		options["pea_area"] = area
 	}
 	if name != "" {
-		options["aoj_name"] = name
+		options["pea_in_charge"] = name
 	}
 	if device != "" {
 		options["ev_device"] = device
