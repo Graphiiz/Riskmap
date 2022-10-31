@@ -138,9 +138,9 @@ func GetOverviewData(c echo.Context) error {
 	if name != "" {
 		options["pea_in_charge"] = name
 	}
-	if device != "" {
-		options["ev_device"] = device
-	}
+	// if device != "" {
+	// 	options["ev_device"] = device
+	// }
 	if wtype != "" {
 		options["work_type"] = wtype
 	}
@@ -149,6 +149,7 @@ func GetOverviewData(c echo.Context) error {
 		if err != nil {
 			return c.String(http.StatusExpectationFailed, "Error in type conversion of query param: status")
 		}
+
 		options["work_status"] = status_int
 	}
 	// Incoming format: "2022-10-30T22:04:00.000Z"
@@ -162,7 +163,7 @@ func GetOverviewData(c echo.Context) error {
 		// not found
 		return c.String(http.StatusNotFound, "Cannot get Riskmap data or not found")
 	}
-	// fmt.Println(len(*rmData))
+	// fmt.Println((*rmData)[0])
 	// create a map storing slice of points of each cluster
 	clusters := make(map[string][]Point)
 	evDevices := make(map[string]map[string]struct{})
@@ -202,29 +203,62 @@ func GetOverviewData(c echo.Context) error {
 		}
 		sort.Strings(evDeviceDistinct)
 
-		workOrder := OverviewRM{
-			Cluster:   clusters[k],
-			Date:      (*rmData)[clusters[k][0].Id].CreatedAt.String(),
-			EVType:    (*rmData)[clusters[k][0].Id].EVType,
-			EVDevice:  evDeviceDistinct,
-			FaultType: (*rmData)[clusters[k][0].Id].FaultType,
-			Amp:       (*rmData)[clusters[k][0].Id].Amp,
-			PEAName:   (*rmData)[clusters[k][0].Id].PEAInCharge,
-
-			CenterX: (*rmData)[clusters[k][0].Id].CenterX,
-			CenterY: (*rmData)[clusters[k][0].Id].CenterY,
-			Radius:  (*rmData)[clusters[k][0].Id].Radius,
-			Count:   (*rmData)[clusters[k][0].Id].Count,
-
-			WorkName:     (*rmData)[clusters[k][0].Id].WorkName,
-			WorkType:     (*rmData)[clusters[k][0].Id].WorkType,
-			WorkStatus:   (*rmData)[clusters[k][0].Id].WorkStatus,
-			DateFinished: (*rmData)[clusters[k][0].Id].UpdatedAt.String(),
-
-			PEAArea: (*rmData)[clusters[k][0].Id].PEAArea,
+		check := false
+		for _, v := range evDeviceDistinct {
+			if device == v {
+				check = true
+			}
 		}
 
-		workOrders = append(workOrders, workOrder)
+		if device != "" && check == true {
+			workOrder := OverviewRM{
+				Cluster:   clusters[k],
+				Date:      (*rmData)[clusters[k][0].Id].CreatedAt.String(),
+				EVType:    (*rmData)[clusters[k][0].Id].EVType,
+				EVDevice:  evDeviceDistinct,
+				FaultType: (*rmData)[clusters[k][0].Id].FaultType,
+				Amp:       (*rmData)[clusters[k][0].Id].Amp,
+				PEAName:   (*rmData)[clusters[k][0].Id].PEAInCharge,
+
+				CenterX: (*rmData)[clusters[k][0].Id].CenterX,
+				CenterY: (*rmData)[clusters[k][0].Id].CenterY,
+				Radius:  (*rmData)[clusters[k][0].Id].Radius,
+				Count:   (*rmData)[clusters[k][0].Id].Count,
+
+				WorkName:     (*rmData)[clusters[k][0].Id].WorkName,
+				WorkType:     (*rmData)[clusters[k][0].Id].WorkType,
+				WorkStatus:   (*rmData)[clusters[k][0].Id].WorkStatus,
+				DateFinished: (*rmData)[clusters[k][0].Id].UpdatedAt.String(),
+
+				PEAArea: (*rmData)[clusters[k][0].Id].PEAArea,
+			}
+			workOrders = append(workOrders, workOrder)
+		}
+		if device == "" {
+			workOrder := OverviewRM{
+				Cluster:   clusters[k],
+				Date:      (*rmData)[clusters[k][0].Id].CreatedAt.String(),
+				EVType:    (*rmData)[clusters[k][0].Id].EVType,
+				EVDevice:  evDeviceDistinct,
+				FaultType: (*rmData)[clusters[k][0].Id].FaultType,
+				Amp:       (*rmData)[clusters[k][0].Id].Amp,
+				PEAName:   (*rmData)[clusters[k][0].Id].PEAInCharge,
+
+				CenterX: (*rmData)[clusters[k][0].Id].CenterX,
+				CenterY: (*rmData)[clusters[k][0].Id].CenterY,
+				Radius:  (*rmData)[clusters[k][0].Id].Radius,
+				Count:   (*rmData)[clusters[k][0].Id].Count,
+
+				WorkName:     (*rmData)[clusters[k][0].Id].WorkName,
+				WorkType:     (*rmData)[clusters[k][0].Id].WorkType,
+				WorkStatus:   (*rmData)[clusters[k][0].Id].WorkStatus,
+				DateFinished: (*rmData)[clusters[k][0].Id].UpdatedAt.String(),
+
+				PEAArea: (*rmData)[clusters[k][0].Id].PEAArea,
+			}
+
+			workOrders = append(workOrders, workOrder)
+		}
 	}
 
 	// fmt.Println(workOrders[0].Date)
