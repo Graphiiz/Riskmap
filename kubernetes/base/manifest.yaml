@@ -32,8 +32,15 @@ spec:
           requests:
             memory: 100Mi
         imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: "/data"
+          name: data
       imagePullSecrets:
       - name: harbor-regcred
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: nfs-adhoc-riskmap-pvc
 ---
 kind: Service
 apiVersion: v1
