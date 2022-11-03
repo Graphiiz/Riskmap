@@ -3,10 +3,13 @@ package main
 import (
 	d "backend/data"
 	rmdb "backend/db"
+	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/robfig/cron"
 )
 
 func main() {
@@ -32,6 +35,15 @@ func main() {
 
 	e.GET("/RM/filter_bar/:area", d.GetFilterBarData)
 
-	e.Logger.Fatal(e.Start(":1234"))
+	c := cron.New()
+	c.AddFunc("15 * * * *", RunJob)
+	go c.Start()
 
+	e.Logger.Fatal(e.Start(":12345"))
+
+}
+
+func RunJob() {
+	fmt.Println("cron job run ......")
+	fmt.Printf("%v\n", time.Now())
 }
