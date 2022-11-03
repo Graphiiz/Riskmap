@@ -13,7 +13,8 @@ import (
 type RMDB struct {
 	gorm.Model
 	// SFLA Data
-	ID        int    `gorm:"primaryKey"`
+	ID        int `gorm:"primaryKey"`
+	DBTime    string
 	EVDevice  string // equipment id
 	EVType    string // TR/TL
 	FaultType string
@@ -57,7 +58,7 @@ type FilterBarDataDB struct {
 type SFLADB struct {
 	gorm.Model
 	ID        int `gorm:"primaryKey"`
-	DbTime    string
+	DBTime    string
 	EVDevice  string
 	EVType    string
 	FaultType string
@@ -156,6 +157,7 @@ func ReadDataForFilterBar(area string) (*FilterBarDataDB, error) {
 func ReadRMData(options map[string]interface{}, startDate string, endDate string) (*[]RMDB, error) {
 	db := DB()
 	var rmData []RMDB
+
 	if startDate == "" && endDate == "" {
 		if err := db.Table("RM").Where(options).Find(&rmData).Error; err != nil {
 			return nil, err

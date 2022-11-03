@@ -1,6 +1,7 @@
 package data
 
 type RM struct {
+	DBTime    string  `json:"db_time"`
 	EVDevice  string  `json:"ev_device"`
 	EVType    string  `json:"ev_type"`
 	FaultType string  `json:"fault_type"`
@@ -56,13 +57,24 @@ type OverviewRM struct {
 	// Customers    int    `json:"customers"`   // number of afected customers
 	DateFinished string `json:"date_finished"`
 
-	PEAArea string `json:"pea_area"`
+	PEAArea string     `json:"pea_area"`
+	Event   []Incident `json:"event"`
+}
+
+type Incident struct {
+	ID        int     `json:"id"`
+	DateTime  string  `json:"date_time"`
+	EVDevice  string  `json:"ev_device"`
+	EVType    string  `json:"ev_type"`
+	FaultType string  `json:"fault_type"`
+	Amp       float64 `json:"amp"`
 }
 
 type Point struct {
-	Id   int     `json:"-"`
-	Lat  float64 `json:"latitude"`
-	Long float64 `json:"longitude"`
+	Id     int     `json:"-"`
+	Lat    float64 `json:"latitude"`
+	Long   float64 `json:"longitude"`
+	EVType string  `json:"ev_type"`
 }
 
 type MJM struct {
@@ -73,7 +85,7 @@ type MJM struct {
 }
 
 type SFLA struct {
-	DbTime    string  `json:"db_time"`
+	DBTime    string  `json:"db_time"`
 	EVDevice  string  `json:"ev_device"`
 	EVType    string  `json:"ev_type"`
 	FaultType string  `json:"fault_type"`

@@ -45,7 +45,7 @@ func WriteFromSFLA(c echo.Context) error {
 	for _, value := range sflaData {
 		// map SLFA struct to SFLADB struct
 		sflaDB := rmdb.SFLADB{
-			DbTime:    value.DbTime,
+			DBTime:    value.DBTime,
 			EVDevice:  value.EVDevice,
 			EVType:    value.EVType,
 			FaultType: value.FaultType,
@@ -78,7 +78,7 @@ func GetSFLAData(c echo.Context) error {
 	var sflaData []SFLA
 	for _, value := range *data {
 		sfla := SFLA{
-			DbTime:    value.DbTime,
+			DBTime:    value.DBTime,
 			EVDevice:  value.EVDevice,
 			EVType:    value.EVType,
 			FaultType: value.FaultType,
@@ -167,21 +167,37 @@ func GetOverviewData(c echo.Context) error {
 	// create a map storing slice of points of each cluster
 	clusters := make(map[string][]Point)
 	evDevices := make(map[string]map[string]struct{})
+	incidentMap := make(map[string]map[Incident]struct{}) // slice of string as a key in map
 
 	for i := 0; i < len(*rmData); i++ {
 
 		x := (*rmData)[i].Longitude
 		y := (*rmData)[i].Latitude
 
-		clusters[(*rmData)[i].WorkName] = append(clusters[(*rmData)[i].WorkName], Point{i + 1, x, y})
+		clusters[(*rmData)[i].WorkName] = append(clusters[(*rmData)[i].WorkName], Point{i + 1, x, y, (*rmData)[i].EVType})
 
-		// map in map
-		inner_map, ok := evDevices[(*rmData)[i].WorkName]
+		// map in map for evDevice
+		inner_map_ev, ok := evDevices[(*rmData)[i].WorkName]
 		if !ok {
-			inner_map = make(map[string]struct{})
-			evDevices[(*rmData)[i].WorkName] = inner_map
+			inner_map_ev = make(map[string]struct{})
+			evDevices[(*rmData)[i].WorkName] = inner_map_ev
 		}
-		inner_map[(*rmData)[i].EVDevice] = struct{}{}
+		inner_map_ev[(*rmData)[i].EVDevice] = struct{}{}
+
+		// map in map for evDevice
+		inner_map_inc, ok := incidentMap[(*rmData)[i].WorkName]
+		if !ok {
+			inner_map_inc = make(map[Incident]struct{})
+			incidentMap[(*rmData)[i].WorkName] = inner_map_inc
+		}
+		incident := Incident{
+			DateTime:  (*rmData)[i].DBTime,
+			EVDevice:  (*rmData)[i].EVDevice,
+			EVType:    (*rmData)[i].EVType,
+			FaultType: (*rmData)[i].FaultType,
+			Amp:       (*rmData)[i].Amp,
+		}
+		inner_map_inc[incident] = struct{}{}
 
 	}
 
@@ -192,7 +208,7 @@ func GetOverviewData(c echo.Context) error {
 		keys = append(keys, k)
 	}
 
-	sort.Strings(keys)
+	sort.Strings(keys) // keys store work_name
 
 	var workOrders []OverviewRM
 
@@ -202,6 +218,18 @@ func GetOverviewData(c echo.Context) error {
 			evDeviceDistinct = append(evDeviceDistinct, device)
 		}
 		sort.Strings(evDeviceDistinct)
+
+		incidents := []Incident{}
+		for incident := range incidentMap[k] {
+			incidents = append(incidents, incident)
+		}
+		sort.Slice(incidents, func(i, j int) bool {
+			return incidents[i].DateTime < incidents[j].DateTime
+		})
+
+		for i := 0; i < len(incidents); i++ {
+			incidents[i].ID = i + 1
+		}
 
 		check := false
 		for _, v := range evDeviceDistinct {
@@ -231,6 +259,7 @@ func GetOverviewData(c echo.Context) error {
 				DateFinished: (*rmData)[clusters[k][0].Id].UpdatedAt.String(),
 
 				PEAArea: (*rmData)[clusters[k][0].Id].PEAArea,
+				Event:   incidents,
 			}
 			workOrders = append(workOrders, workOrder)
 		}
@@ -255,6 +284,7 @@ func GetOverviewData(c echo.Context) error {
 				DateFinished: (*rmData)[clusters[k][0].Id].UpdatedAt.String(),
 
 				PEAArea: (*rmData)[clusters[k][0].Id].PEAArea,
+				Event:   incidents,
 			}
 
 			workOrders = append(workOrders, workOrder)
@@ -276,6 +306,7 @@ func CreateRMData(c echo.Context) error {
 
 	for _, value := range rm {
 		rmdb := rmdb.RMDB{
+			DBTime:      value.DBTime,
 			EVDevice:    value.EVDevice,
 			EVType:      value.EVType,
 			FaultType:   value.FaultType,
