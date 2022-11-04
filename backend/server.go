@@ -3,8 +3,12 @@ package main
 import (
 	d "backend/data"
 	rmdb "backend/db"
+	"bytes"
 	"fmt"
+	"log"
 	"net/http"
+	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -36,7 +40,7 @@ func main() {
 	e.GET("/RM/filter_bar/:area", d.GetFilterBarData)
 
 	c := cron.New()
-	c.AddFunc("15 * * * *", RunJob)
+	c.AddFunc("5 * * * *", RunJob)
 	go c.Start()
 
 	e.Logger.Fatal(e.Start(":1234"))
@@ -44,6 +48,18 @@ func main() {
 }
 
 func RunJob() {
+
 	fmt.Println("cron job run ......")
 	fmt.Printf("%v\n", time.Now())
+
+	cmd := exec.Command("/bin/sh", "./First.sh")
+	cmd.Stdin = strings.NewReader("")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Output", out.String())
+
 }
