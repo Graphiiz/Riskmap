@@ -358,5 +358,10 @@ func GetRemainingTime(datetime string) int {
 		fmt.Println(error)
 	}
 	remainingTime := time.Until(deadline)
-	return int(remainingTime.Hours() / 24)
+	if remainingTime.Hours() < 0 {
+		// if deadline already passes
+		return 0
+	} else {
+		return int(remainingTime.Hours() / 24)
+	}
 }
