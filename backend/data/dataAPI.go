@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"net/http"
 
@@ -184,7 +185,7 @@ func GetOverviewData(c echo.Context) error {
 		}
 		inner_map_ev[(*rmData)[i].EVDevice] = struct{}{}
 
-		// map in map for evDevice
+		// map in map for incident
 		inner_map_inc, ok := incidentMap[(*rmData)[i].WorkName]
 		if !ok {
 			inner_map_inc = make(map[Incident]struct{})
@@ -240,51 +241,57 @@ func GetOverviewData(c echo.Context) error {
 
 		if device != "" && check == true {
 			workOrder := OverviewRM{
-				Cluster:   clusters[k],
-				Date:      (*rmData)[clusters[k][0].Id].CreatedAt.String(),
-				EVType:    (*rmData)[clusters[k][0].Id].EVType,
-				EVDevice:  evDeviceDistinct,
-				FaultType: (*rmData)[clusters[k][0].Id].FaultType,
-				Amp:       (*rmData)[clusters[k][0].Id].Amp,
-				PEAName:   (*rmData)[clusters[k][0].Id].PEAInCharge,
+				Cluster:    clusters[k],
+				CreateDate: (*rmData)[clusters[k][0].Id].CreateDate,
+				// EVType:     (*rmData)[clusters[k][0].Id].EVType,
+				EVDevices: evDeviceDistinct,
+				// FaultType:  (*rmData)[clusters[k][0].Id].FaultType,
+				// Amp:        (*rmData)[clusters[k][0].Id].Amp,
+				PEAName: (*rmData)[clusters[k][0].Id].PEAInCharge,
 
-				CenterX: (*rmData)[clusters[k][0].Id].CenterX,
-				CenterY: (*rmData)[clusters[k][0].Id].CenterY,
-				Radius:  (*rmData)[clusters[k][0].Id].Radius,
-				Count:   (*rmData)[clusters[k][0].Id].Count,
+				CenterX:  (*rmData)[clusters[k][0].Id].CenterX,
+				CenterY:  (*rmData)[clusters[k][0].Id].CenterY,
+				Radius:   (*rmData)[clusters[k][0].Id].Radius,
+				Count:    (*rmData)[clusters[k][0].Id].Count,
+				Priority: (*rmData)[clusters[k][0].Id].Priority,
 
 				WorkName:     (*rmData)[clusters[k][0].Id].WorkName,
 				WorkType:     (*rmData)[clusters[k][0].Id].WorkType,
 				WorkStatus:   (*rmData)[clusters[k][0].Id].WorkStatus,
-				DateFinished: (*rmData)[clusters[k][0].Id].UpdatedAt.String(),
+				DateFinished: (*rmData)[clusters[k][0].Id].DateFinished.Time.Format("2006-01-02 15:04:05"),
 
-				PEAArea: (*rmData)[clusters[k][0].Id].PEAArea,
-				Event:   incidents,
+				PEAArea:       (*rmData)[clusters[k][0].Id].PEAArea,
+				Event:         incidents,
+				Deadline:      (*rmData)[clusters[k][0].Id].Deadline,
+				RemainingTime: GetRemainingTime((*rmData)[clusters[k][0].Id].Deadline),
 			}
 			workOrders = append(workOrders, workOrder)
 		}
 		if device == "" {
 			workOrder := OverviewRM{
-				Cluster:   clusters[k],
-				Date:      (*rmData)[clusters[k][0].Id].CreatedAt.String(),
-				EVType:    (*rmData)[clusters[k][0].Id].EVType,
-				EVDevice:  evDeviceDistinct,
-				FaultType: (*rmData)[clusters[k][0].Id].FaultType,
-				Amp:       (*rmData)[clusters[k][0].Id].Amp,
-				PEAName:   (*rmData)[clusters[k][0].Id].PEAInCharge,
+				Cluster:    clusters[k],
+				CreateDate: (*rmData)[clusters[k][0].Id].CreateDate,
+				// EVType:     (*rmData)[clusters[k][0].Id].EVType,
+				EVDevices: evDeviceDistinct,
+				// FaultType:  (*rmData)[clusters[k][0].Id].FaultType,
+				// Amp:        (*rmData)[clusters[k][0].Id].Amp,
+				PEAName: (*rmData)[clusters[k][0].Id].PEAInCharge,
 
-				CenterX: (*rmData)[clusters[k][0].Id].CenterX,
-				CenterY: (*rmData)[clusters[k][0].Id].CenterY,
-				Radius:  (*rmData)[clusters[k][0].Id].Radius,
-				Count:   (*rmData)[clusters[k][0].Id].Count,
+				CenterX:  (*rmData)[clusters[k][0].Id].CenterX,
+				CenterY:  (*rmData)[clusters[k][0].Id].CenterY,
+				Radius:   (*rmData)[clusters[k][0].Id].Radius,
+				Count:    (*rmData)[clusters[k][0].Id].Count,
+				Priority: (*rmData)[clusters[k][0].Id].Priority,
 
 				WorkName:     (*rmData)[clusters[k][0].Id].WorkName,
 				WorkType:     (*rmData)[clusters[k][0].Id].WorkType,
 				WorkStatus:   (*rmData)[clusters[k][0].Id].WorkStatus,
-				DateFinished: (*rmData)[clusters[k][0].Id].UpdatedAt.String(),
+				DateFinished: (*rmData)[clusters[k][0].Id].DateFinished.Time.Format("2006-01-02 15:04:05"),
 
-				PEAArea: (*rmData)[clusters[k][0].Id].PEAArea,
-				Event:   incidents,
+				PEAArea:       (*rmData)[clusters[k][0].Id].PEAArea,
+				Event:         incidents,
+				Deadline:      (*rmData)[clusters[k][0].Id].Deadline,
+				RemainingTime: GetRemainingTime((*rmData)[clusters[k][0].Id].Deadline),
 			}
 
 			workOrders = append(workOrders, workOrder)
@@ -292,6 +299,11 @@ func GetOverviewData(c echo.Context) error {
 	}
 
 	// fmt.Println(workOrders[0].Date)
+	// fmt.Println(len(workOrders))
+
+	sort.Slice(workOrders, func(i, j int) bool {
+		return workOrders[i].CreateDate > workOrders[j].CreateDate
+	})
 
 	return c.JSON(http.StatusOK, workOrders)
 }
@@ -320,11 +332,15 @@ func CreateRMData(c echo.Context) error {
 			CenterY:     value.CenterY,
 			Radius:      value.Radius,
 			Count:       value.Count,
+			Priority:    value.Priority,
 			WorkName:    value.WorkName,
 			WorkType:    value.WorkType,
 			WorkStatus:  value.WorkStatus,
 			PEAArea:     value.PEAArea,
 			PEAInCharge: value.PEAInCharge,
+			CreateDate:  value.CreateDate,
+			Deadline:    value.Deadline,
+			Customers:   value.Customers,
 		}
 		rmdbs = append(rmdbs, rmdb)
 	}
@@ -333,4 +349,14 @@ func CreateRMData(c echo.Context) error {
 		return c.String(http.StatusExpectationFailed, "Create RM data Fail")
 	}
 	return c.String(http.StatusOK, "Create RM API OK")
+}
+
+// Auxiliary function
+func GetRemainingTime(datetime string) int {
+	deadline, error := time.Parse("2006-01-02 15:04:05", datetime)
+	if error != nil {
+		fmt.Println(error)
+	}
+	remainingTime := time.Until(deadline)
+	return int(remainingTime.Hours() / 24)
 }
