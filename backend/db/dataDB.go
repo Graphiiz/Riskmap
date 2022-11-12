@@ -13,7 +13,8 @@ import (
 type RMDB struct {
 	gorm.Model
 	// SFLA Data
-	ID        int    `gorm:"primaryKey"`
+	ID        int `gorm:"primaryKey"`
+	DBTime    string
 	EVDevice  string // equipment id
 	EVType    string // TR/TL
 	FaultType string
@@ -25,10 +26,11 @@ type RMDB struct {
 	Latitude  float64
 
 	// cluster data
-	CenterX float64
-	CenterY float64
-	Radius  float64 // to be changed according to circle plotting requirement
-	Count   int     // number of distinct incident the points come from
+	CenterX  float64
+	CenterY  float64
+	Radius   float64 // to be changed according to circle plotting requirement
+	Count    int     // number of distinct incident the points come from
+	Priority int     // critical level of work order
 
 	// MJM Data
 	WorkName     string `gorm:"primaryKey"` // gen from riskmap
@@ -38,6 +40,9 @@ type RMDB struct {
 
 	PEAArea     string // ex. C1, NE3
 	PEAInCharge string
+	CreateDate  string
+	Deadline    string
+	Customers   int
 }
 
 type MJMDB struct {
@@ -57,17 +62,17 @@ type FilterBarDataDB struct {
 type SFLADB struct {
 	gorm.Model
 	ID        int `gorm:"primaryKey"`
-	Latitude  string
-	Longitude string
-	I         float64
-	Date      string
-	Time      string
-	DeviceID  string
-	Type      string
+	DBTime    string
 	EVDevice  string
-	PEAName   string
-	PEACode   string
-	FaultType int
+	EVType    string
+	FaultType string
+	Amp       float64
+	Latitude  float64
+	Longitude float64
+	DeviceID  string
+	AOJName   string
+	AOJCode   string
+	Archive   bool
 }
 
 func WriteMJMData(mjm MJMDB) error {
@@ -103,15 +108,24 @@ func WriteMJMData(mjm MJMDB) error {
 
 }
 
-func WriteSFLAData(sfla SFLADB) error {
+func WriteSFLAData(sfla []SFLADB) error {
 	db := DB()
 
 	// SFLA has only create, same location but differ in time will be treated as another location
-
 	if err := db.Table("SFLA").Create(&sfla).Error; err != nil {
 		return err
 	}
 	return nil
+}
+
+func ReadSFLAData() (*[]SFLADB, error) {
+	db := DB()
+	var sflaData []SFLADB
+	if err := db.Table("SFLA").Where("archive = ?", false).Find(&sflaData).Error; err != nil {
+		return nil, err
+	}
+	fmt.Println(sflaData[0])
+	return &sflaData, nil
 }
 
 func WriteRMData(rm []RMDB) error {
@@ -131,10 +145,10 @@ func ReadDataForFilterBar(area string) (*FilterBarDataDB, error) {
 	var peaName []string
 	var evDevice []string
 
-	if err := db.Table("RM").Select("aoj_name").Distinct("aoj_name").Scan(&peaName).Error; err != nil {
+	if err := db.Table("RM").Select("aoj_name").Distinct("aoj_name").Where("pea_area = ?", area).Scan(&peaName).Error; err != nil {
 		return nil, err
 	}
-	if err := db.Table("RM").Select("ev_device").Distinct("ev_device").Scan(&evDevice).Error; err != nil {
+	if err := db.Table("RM").Select("ev_device").Distinct("ev_device").Where("pea_area = ?", area).Scan(&evDevice).Error; err != nil {
 		return nil, err
 	}
 	sort.Strings(peaName)
@@ -144,11 +158,26 @@ func ReadDataForFilterBar(area string) (*FilterBarDataDB, error) {
 	return &filterBarData, nil
 }
 
-func ReadRMData(options map[string]interface{}) (*[]RMDB, error) {
+func ReadRMData(options map[string]interface{}, startDate string, endDate string) (*[]RMDB, error) {
 	db := DB()
 	var rmData []RMDB
-	if err := db.Table("RM").Where(options).Find(&rmData).Error; err != nil {
-		return nil, err
+
+	if startDate == "" && endDate == "" {
+		if err := db.Table("RM").Where(options).Find(&rmData).Error; err != nil {
+			return nil, err
+		}
+	} else if startDate != "" && endDate == "" {
+		if err := db.Table("RM").Where(options).Where("create_date >= ?", startDate).Find(&rmData).Error; err != nil {
+			return nil, err
+		}
+	} else if startDate == "" && endDate != "" {
+		if err := db.Table("RM").Where(options).Where("create_date <= ?", endDate).Find(&rmData).Error; err != nil {
+			return nil, err
+		}
+	} else {
+		if err := db.Table("RM").Where(options).Where("create_date BETWEEN ? AND ?", startDate, endDate).Find(&rmData).Error; err != nil {
+			return nil, err
+		}
 	}
 
 	return &rmData, nil

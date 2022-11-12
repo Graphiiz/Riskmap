@@ -2,9 +2,19 @@
 http://127.0.0.1:1234/
 
 ### API FE GET Test
-http://127.0.0.1:1234/RM?area=05
+http://127.0.0.1:1234/RM?area=05&name=กฟส.กันทรารมย์&start_date=2022-10-30T22:03:00.000Z&end_date=2022-12-30T22:06:00.000Z&status=0
+
+
+### API FE GET Test
+http://127.0.0.1:1234/RM?area=05&sort=priority&order=asc
+
 
 # http://127.0.0.1:1234/RM?area=05&name=กฟส.กันทรารมย์&device=WRA06VB-01&wtype=ตรวจตราระบบจำหน่าย&status=0
 
 ### API FilterBar GET Test
 http://127.0.0.1:1234/RM/filter_bar/05
+
+
+
+### API FE GET Test
+http://127.0.0.1:1234/SFLA
