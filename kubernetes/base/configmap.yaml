@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: api-riskmap-config
 data:
-  PORT: $API_PORT
+  PORT: $PORT
