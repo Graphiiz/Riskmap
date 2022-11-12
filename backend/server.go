@@ -4,14 +4,23 @@ import (
 	d "backend/data"
 	rmdb "backend/db"
 	"net/http"
+	"os"
 
 	// "time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+
 	// "github.com/robfig/cron"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
+// @title RiskMap API
+// @version 0.1
+// @description RiskMap Server for PEA.
+
+// @BasePath /
+// @schemes http
 func main() {
 	rmdb.DB()
 	rmdb.Migrate()
@@ -35,12 +44,14 @@ func main() {
 
 	e.GET("/RM/filter_bar/:area", d.GetFilterBarData)
 
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
+
 	// c := cron.New()
 	// c.AddFunc("* * * * * *", RunJob)
-	// // c.AddFunc("01 00 * * 1", RunJob)
+	// c.AddFunc("01 00 * * 1", RunJob)
 	// go c.Start()
 
-	e.Logger.Fatal(e.Start(":1234"))
+	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
 
 }
 
@@ -51,7 +62,7 @@ func main() {
 
 // 	// RunJobByShellScript()
 // 	// RunJobByPython()
-// 	RunJobByPython()
+// 	// RunJobByPython()
 // }
 
 // func RunJobByPythonSayHello() {

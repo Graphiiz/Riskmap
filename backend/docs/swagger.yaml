@@ -1,0 +1,16 @@
+info:
+  contact: {}
+paths:
+  /SFLA:
+    get:
+      description: SFLAData for the service
+      operationId: GetSFLAData
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: SFLAData
+swagger: "2.0"

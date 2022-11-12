@@ -160,7 +160,6 @@ func GetOverviewData(c echo.Context) error {
 	startDate := replacer.Replace(start)
 	endDate := replacer.Replace(end)
 
-	fmt.Println(options)
 	rmData, err := rmdb.ReadRMData(options, startDate, endDate)
 	if err != nil {
 		fmt.Println(err)
