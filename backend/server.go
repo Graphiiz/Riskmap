@@ -3,17 +3,13 @@ package main
 import (
 	d "backend/data"
 	rmdb "backend/db"
-	"bytes"
-	"fmt"
-	"log"
 	"net/http"
-	"os/exec"
-	"strings"
-	"time"
+
+	// "time"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/robfig/cron"
+	// "github.com/robfig/cron"
 )
 
 func main() {
@@ -39,53 +35,53 @@ func main() {
 
 	e.GET("/RM/filter_bar/:area", d.GetFilterBarData)
 
-	c := cron.New()
-	c.AddFunc("* * * * * *", RunJob)
-	// c.AddFunc("01 00 * * 1", RunJob)
-	go c.Start()
+	// c := cron.New()
+	// c.AddFunc("* * * * * *", RunJob)
+	// // c.AddFunc("01 00 * * 1", RunJob)
+	// go c.Start()
 
 	e.Logger.Fatal(e.Start(":1234"))
 
 }
 
-func RunJob() {
+// func RunJob() {
 
-	fmt.Println("cron job run ......")
-	fmt.Printf("%v\n", time.Now())
+// 	fmt.Println("cron job run ......")
+// 	fmt.Printf("%v\n", time.Now())
 
-	// RunJobByShellScript()
-	// RunJobByPython()
-	RunJobByPython()
-}
+// 	// RunJobByShellScript()
+// 	// RunJobByPython()
+// 	RunJobByPython()
+// }
 
-func RunJobByPythonSayHello() {
-	cmd := exec.Command("python", "-c", "import hello;")
-	fmt.Println(cmd.Args)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(string(out))
-}
+// func RunJobByPythonSayHello() {
+// 	cmd := exec.Command("python", "-c", "import hello;")
+// 	fmt.Println(cmd.Args)
+// 	out, err := cmd.CombinedOutput()
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	fmt.Println(string(out))
+// }
 
-func RunJobByShellScript() {
-	cmd := exec.Command("/bin/sh", "./First.sh")
-	cmd.Stdin = strings.NewReader("")
-	var out bytes.Buffer
-	cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Output", out.String())
-}
+// func RunJobByShellScript() {
+// 	cmd := exec.Command("/bin/sh", "./First.sh")
+// 	cmd.Stdin = strings.NewReader("")
+// 	var out bytes.Buffer
+// 	cmd.Stdout = &out
+// 	err := cmd.Run()
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	fmt.Println("Output", out.String())
+// }
 
-func RunJobByPython() {
-	cmd := exec.Command("python", "-c", "import pythonFile; pythonFile.cat_strings('foo', 'bar')")
-	fmt.Println(cmd.Args)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(string(out))
-}
+// func RunJobByPython() {
+// 	cmd := exec.Command("python", "-c", "import pythonFile; pythonFile.cat_strings('foo', 'bar')")
+// 	fmt.Println(cmd.Args)
+// 	out, err := cmd.CombinedOutput()
+// 	if err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	fmt.Println(string(out))
+// }

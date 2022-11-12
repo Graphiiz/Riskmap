@@ -131,6 +131,8 @@ func GetOverviewData(c echo.Context) error {
 	status := c.QueryParam("status")
 	start := c.QueryParam("start_date") // created_at from date = start
 	end := c.QueryParam("end_date")     // to date = end
+	sortParam := c.QueryParam("sort")
+	order := c.QueryParam("order")
 
 	options := make(map[string]interface{})
 	if area != "" {
@@ -158,13 +160,14 @@ func GetOverviewData(c echo.Context) error {
 	startDate := replacer.Replace(start)
 	endDate := replacer.Replace(end)
 
+	fmt.Println(options)
 	rmData, err := rmdb.ReadRMData(options, startDate, endDate)
 	if err != nil {
 		fmt.Println(err)
 		// not found
 		return c.String(http.StatusNotFound, "Cannot get Riskmap data or not found")
 	}
-	// fmt.Println((*rmData)[0])
+	// fmt.Println(len(*rmData))
 	// create a map storing slice of points of each cluster
 	clusters := make(map[string][]Point)
 	evDevices := make(map[string]map[string]struct{})
@@ -304,6 +307,19 @@ func GetOverviewData(c echo.Context) error {
 	sort.Slice(workOrders, func(i, j int) bool {
 		return workOrders[i].CreateDate > workOrders[j].CreateDate
 	})
+
+	if sortParam == "priority" {
+		if order == "asc" {
+			sort.Slice(workOrders, func(i, j int) bool {
+				return workOrders[i].Priority < workOrders[j].Priority
+			})
+		}
+		if order == "desc" {
+			sort.Slice(workOrders, func(i, j int) bool {
+				return workOrders[i].Priority > workOrders[j].Priority
+			})
+		}
+	}
 
 	return c.JSON(http.StatusOK, workOrders)
 }
