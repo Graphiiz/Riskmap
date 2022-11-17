@@ -4,3 +4,5 @@ metadata:
   name: api-riskmap-config
 data:
   PORT: $PORT
+  REDIRECT_URL: $REDIRECT_URL
+  SSO_REALMS: $SSO_REALMS
