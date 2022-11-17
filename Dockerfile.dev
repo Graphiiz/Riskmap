@@ -1,4 +1,4 @@
-FROM golang:1.19 AS builder
+FROM golang:1.19
 
 WORKDIR /app
 
@@ -10,11 +10,5 @@ RUN go mod download
 
 COPY ${DIR_PROJ}/. .
 RUN go build -o ./api
-
-FROM alpine:3.17.0_rc1
-
-WORKDIR /build
-
-COPY --from=build /app/api ./api
 
 ENTRYPOINT ["./api"]
