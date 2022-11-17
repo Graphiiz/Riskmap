@@ -11,10 +11,10 @@ RUN go mod download
 COPY ${DIR_PROJ}/. .
 RUN go build -o /server
 
-FROM gcr.io/distroless/base-debian10
+FROM alpine:3.17
 
 COPY --from=builder /server /server
 
-USER nonroot:nonroot
+# USER nonroot:nonroot
 
 CMD [ "/server" ]
