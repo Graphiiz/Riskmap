@@ -9,12 +9,12 @@ COPY ${DIR_PROJ}/go.sum .
 RUN go mod download
 
 COPY ${DIR_PROJ}/. .
-RUN go build -o /server
+RUN go build -o ./api
 
-FROM alpine:3.17
+FROM alpine:3.17.0_rc1
 
-COPY --from=builder /server /server
+WORKDIR /build
 
-# USER nonroot:nonroot
+COPY --from=build /app/api ./api
 
-CMD [ "/server" ]
+ENTRYPOINT ["./api"]
