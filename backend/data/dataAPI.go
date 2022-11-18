@@ -75,7 +75,7 @@ func GetSFLAData(c echo.Context) error {
 		// not found
 		return c.String(http.StatusNotFound, "Cannot get sfla data or not found")
 	}
-	fmt.Println((*data)[0])
+	// fmt.Println((*data)[0])
 	var sflaData []SFLA
 	for _, value := range *data {
 		sfla := SFLA{
@@ -94,13 +94,6 @@ func GetSFLAData(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, sflaData)
 }
-
-// func UpdateRMData(c echo.Context) error {
-// 	if err := rmdb.WriteRMData(); err != nil {
-// 		return c.String(http.StatusExpectationFailed, "Updata RM data Fail")
-// 	}
-// 	return c.String(http.StatusOK, "RM API OK")
-// }
 
 func GetFilterBarData(c echo.Context) error {
 	area := c.Param("area")
@@ -141,9 +134,6 @@ func GetOverviewData(c echo.Context) error {
 	if name != "" {
 		options["pea_in_charge"] = name
 	}
-	// if device != "" {
-	// 	options["ev_device"] = device
-	// }
 	if wtype != "" {
 		options["work_type"] = wtype
 	}
@@ -169,7 +159,7 @@ func GetOverviewData(c echo.Context) error {
 	// fmt.Println(len(*rmData))
 	// create a map storing slice of points of each cluster
 	clusters := make(map[string][]Point)
-	evDevices := make(map[string]map[string]struct{})
+	evDevices := make(map[string]map[string]int)
 	incidentMap := make(map[string]map[Incident]struct{}) // slice of string as a key in map
 
 	for i := 0; i < len(*rmData); i++ {
@@ -182,10 +172,10 @@ func GetOverviewData(c echo.Context) error {
 		// map in map for evDevice
 		inner_map_ev, ok := evDevices[(*rmData)[i].WorkName]
 		if !ok {
-			inner_map_ev = make(map[string]struct{})
+			inner_map_ev = make(map[string]int)
 			evDevices[(*rmData)[i].WorkName] = inner_map_ev
 		}
-		inner_map_ev[(*rmData)[i].EVDevice] = struct{}{}
+		inner_map_ev[(*rmData)[i].EVDevice] = (*rmData)[i].Customers
 
 		// map in map for incident
 		inner_map_inc, ok := incidentMap[(*rmData)[i].WorkName]
@@ -221,6 +211,15 @@ func GetOverviewData(c echo.Context) error {
 			evDeviceDistinct = append(evDeviceDistinct, device)
 		}
 		sort.Strings(evDeviceDistinct)
+
+		totalCustomers := 0
+		if len(evDeviceDistinct) > 1 {
+			for _, evDev := range evDeviceDistinct {
+				totalCustomers = totalCustomers + evDevices[k][evDev]
+			}
+		} else {
+			totalCustomers = (*rmData)[clusters[k][0].Id].Customers
+		}
 
 		incidents := []Incident{}
 		for incident := range incidentMap[k] {
@@ -266,6 +265,7 @@ func GetOverviewData(c echo.Context) error {
 				Event:         incidents,
 				Deadline:      (*rmData)[clusters[k][0].Id].Deadline,
 				RemainingTime: GetRemainingTime((*rmData)[clusters[k][0].Id].Deadline),
+				Customers:     totalCustomers,
 			}
 			workOrders = append(workOrders, workOrder)
 		}
@@ -303,19 +303,86 @@ func GetOverviewData(c echo.Context) error {
 	// fmt.Println(workOrders[0].Date)
 	// fmt.Println(len(workOrders))
 
+	// default sorting
 	sort.Slice(workOrders, func(i, j int) bool {
-		return workOrders[i].CreateDate > workOrders[j].CreateDate
+		if workOrders[i].CreateDate != workOrders[j].CreateDate {
+			return workOrders[i].CreateDate > workOrders[j].CreateDate
+		}
+		return workOrders[i].WorkName > workOrders[j].WorkName
 	})
 
 	if sortParam == "priority" {
 		if order == "asc" {
 			sort.Slice(workOrders, func(i, j int) bool {
-				return workOrders[i].Priority < workOrders[j].Priority
+				if workOrders[i].Priority != workOrders[j].Priority {
+					return workOrders[i].Priority < workOrders[j].Priority
+				}
+				return workOrders[i].CreateDate > workOrders[j].CreateDate
 			})
 		}
 		if order == "desc" {
 			sort.Slice(workOrders, func(i, j int) bool {
-				return workOrders[i].Priority > workOrders[j].Priority
+				if workOrders[i].Priority != workOrders[j].Priority {
+					return workOrders[i].Priority > workOrders[j].Priority
+				}
+				return workOrders[i].CreateDate > workOrders[j].CreateDate
+			})
+		}
+	}
+
+	if sortParam == "create_date" {
+		if order == "asc" {
+			sort.Slice(workOrders, func(i, j int) bool {
+				if workOrders[i].CreateDate != workOrders[j].CreateDate {
+					return workOrders[i].CreateDate < workOrders[j].CreateDate
+				}
+				return workOrders[i].WorkName > workOrders[j].WorkName
+			})
+		}
+		if order == "desc" {
+			sort.Slice(workOrders, func(i, j int) bool {
+				if workOrders[i].CreateDate != workOrders[j].CreateDate {
+					return workOrders[i].CreateDate > workOrders[j].CreateDate
+				}
+				return workOrders[i].WorkName > workOrders[j].WorkName
+			})
+		}
+	}
+
+	if sortParam == "remaining_time" {
+		if order == "asc" {
+			sort.Slice(workOrders, func(i, j int) bool {
+				if workOrders[i].RemainingTime != workOrders[j].RemainingTime {
+					return workOrders[i].RemainingTime < workOrders[j].RemainingTime
+				}
+				return workOrders[i].WorkName > workOrders[j].WorkName
+			})
+		}
+		if order == "desc" {
+			sort.Slice(workOrders, func(i, j int) bool {
+				if workOrders[i].RemainingTime != workOrders[j].RemainingTime {
+					return workOrders[i].RemainingTime > workOrders[j].RemainingTime
+				}
+				return workOrders[i].WorkName > workOrders[j].WorkName
+			})
+		}
+	}
+
+	if sortParam == "customers" {
+		if order == "asc" {
+			sort.Slice(workOrders, func(i, j int) bool {
+				if workOrders[i].Customers != workOrders[j].Customers {
+					return workOrders[i].Customers < workOrders[j].Customers
+				}
+				return workOrders[i].CreateDate > workOrders[j].CreateDate
+			})
+		}
+		if order == "desc" {
+			sort.Slice(workOrders, func(i, j int) bool {
+				if workOrders[i].RemainingTime != workOrders[j].RemainingTime {
+					return workOrders[i].RemainingTime > workOrders[j].RemainingTime
+				}
+				return workOrders[i].CreateDate > workOrders[j].CreateDate
 			})
 		}
 	}

@@ -69,6 +69,7 @@ type OverviewRM struct {
 	Event         []Incident `json:"event"`
 	Deadline      string     `json:"deadline"`
 	RemainingTime int        `json:"remaining_time"`
+	Customers     int        `json:"customers"`
 }
 
 type Incident struct {
