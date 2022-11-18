@@ -3,6 +3,7 @@ package main
 import (
 	d "backend/data"
 	rmdb "backend/db"
+	auth "backend/services"
 	"net/http"
 	"os"
 
@@ -31,6 +32,12 @@ func main() {
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello")
 	})
+
+	e.GET("/auth", auth.GetAuthorizationUrl)
+
+	e.GET("/auth/logout", auth.GetLogout)
+
+	e.POST("/auth/token", auth.GetTokenClient)
 
 	e.GET("/SFLA", d.GetSFLAData)
 

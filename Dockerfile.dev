@@ -1,15 +1,14 @@
-FROM golang:1.19.2-alpine
+FROM golang:1.19
 
 WORKDIR /app
 
-ENV DIR_PROJ=./backend
+ENV DIR_PROJ=backend
 
 COPY ${DIR_PROJ}/go.mod .
 COPY ${DIR_PROJ}/go.sum .
 RUN go mod download
 
 COPY ${DIR_PROJ}/. .
-RUN go build -o /app/serve
+RUN go build -o ./api
 
-CMD [ "/app/serve" ]
-
+ENTRYPOINT ["./api"]

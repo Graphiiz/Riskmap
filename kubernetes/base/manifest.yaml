@@ -33,7 +33,7 @@ spec:
             memory: 100Mi
         imagePullPolicy: Always
         volumeMounts:
-        - mountPath: "/data"
+        - mountPath: "/archive"
           name: data
       imagePullSecrets:
       - name: harbor-regcred
