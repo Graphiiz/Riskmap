@@ -3,6 +3,7 @@
     "gommon",
     "labstack",
     "oidc",
+    "riskmap",
     "rmdb",
     "robfig",
     "SFLA",
