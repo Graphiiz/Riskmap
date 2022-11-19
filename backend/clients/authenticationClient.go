@@ -26,6 +26,7 @@ func GetTokenSSO(code string) ([]byte, error) {
 	}
 	req.Header.Add("Accept", "application/json, text/plain, */*")
 	req.Header.Add("Connection", "keep-alive")
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	res, err := client.Do(req)
 	if err != nil {
@@ -39,5 +40,6 @@ func GetTokenSSO(code string) ([]byte, error) {
 		fmt.Println(err)
 		return nil, err
 	}
+
 	return body, nil
 }

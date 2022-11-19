@@ -2,10 +2,11 @@ package authentication
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"os"
 
-	c "backend/clients"
+	clientAuth "backend/clients"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/labstack/echo/v4"
@@ -44,15 +45,15 @@ func GetAuthorizationUrl(e echo.Context) error {
 func GetTokenClient(e echo.Context) error {
 	code := e.QueryParam("code")
 
-	response, err := c.GetTokenSSO(code)
-
+	response, err := clientAuth.GetTokenSSO(code)
 	if err != nil {
-		e.Logger().Error(err)
-		e.String(http.StatusInternalServerError, "Internal Server Error")
 		return err
 	}
 
-	return e.JSON(http.StatusOK, response)
+	var jsonTokenResponse map[string]interface{}
+	json.Unmarshal([]byte(string(response)), &jsonTokenResponse)
+
+	return e.JSON(http.StatusOK, jsonTokenResponse)
 }
 
 func GetLogout(e echo.Context) error {
