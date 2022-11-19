@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	c "backend/clients"
+
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/oauth2"
@@ -40,18 +42,17 @@ func GetAuthorizationUrl(e echo.Context) error {
 }
 
 func GetTokenClient(e echo.Context) error {
-	config, err := GetIssuerClient()
+	code := e.QueryParam("code")
+
+	response, err := c.GetTokenSSO(code)
+
 	if err != nil {
 		e.Logger().Error(err)
 		e.String(http.StatusInternalServerError, "Internal Server Error")
 		return err
 	}
 
-	token, err := config.Exchange(context.Background(), e.QueryParam("code"))
-	if err != nil {
-		return err
-	}
-	return e.JSON(http.StatusOK, token)
+	return e.JSON(http.StatusOK, response)
 }
 
 func GetLogout(e echo.Context) error {
