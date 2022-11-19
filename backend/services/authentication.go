@@ -3,6 +3,7 @@ package authentication
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -57,16 +58,13 @@ func GetTokenClient(e echo.Context) error {
 }
 
 func GetLogout(e echo.Context) error {
-	config, err := GetIssuerClient()
-	if err != nil {
-		e.Logger().Error(err)
-		e.String(http.StatusInternalServerError, "Internal Server Error")
-		return err
+	token := e.QueryParam("token")
+	fmt.Println(token)
+	if token == "" || token == "undefined" {
+		return e.String(http.StatusBadRequest, "Bad Request")
 	}
 
-	config.Endpoint.AuthURL = os.Getenv("SSO_REALMS") + "/protocol/openid-connect/logout"
-
-	e.Redirect(http.StatusTemporaryRedirect, config.AuthCodeURL("state"))
+	clientAuth.GetLogoutSSO(token)
 
 	return nil
 }
