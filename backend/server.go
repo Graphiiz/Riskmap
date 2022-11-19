@@ -41,6 +41,8 @@ func main() {
 
 	e.GET("/auth/user/info", auth.GetUserInfo)
 
+	e.GET("/auth/image/user", auth.GetImage)
+
 	e.GET("/SFLA", d.GetSFLAData)
 
 	e.POST("/SFLA", d.WriteFromSFLA)

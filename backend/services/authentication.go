@@ -85,3 +85,14 @@ func GetUserInfo(e echo.Context) error {
 
 	return e.JSON(http.StatusOK, jsonUserInfo)
 }
+
+func GetImage(e echo.Context) error {
+	preferred := e.QueryParam("preferred")
+	if preferred == "" || preferred == "undefined" {
+		return e.String(http.StatusBadRequest, "Bad Request")
+	}
+
+	response := "https://epi.pea.co.th/Images/" + preferred + ".JPG"
+
+	return e.JSON(http.StatusOK, response)
+}
