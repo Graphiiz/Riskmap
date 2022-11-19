@@ -68,3 +68,20 @@ func GetLogout(e echo.Context) error {
 
 	return nil
 }
+
+func GetUserInfo(e echo.Context) error {
+	token := e.QueryParam("token")
+	if token == "" || token == "undefined" {
+		return e.String(http.StatusBadRequest, "Bad Request")
+	}
+
+	response, err := clientAuth.GetUserInfo(token)
+	if err != nil {
+		return err
+	}
+
+	var jsonUserInfo map[string]interface{}
+	json.Unmarshal([]byte(string(response)), &jsonUserInfo)
+
+	return e.JSON(http.StatusOK, jsonUserInfo)
+}

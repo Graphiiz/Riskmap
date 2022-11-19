@@ -39,6 +39,8 @@ func main() {
 
 	e.POST("/auth/token", auth.GetTokenClient)
 
+	e.GET("/auth/user/info", auth.GetUserInfo)
+
 	e.GET("/SFLA", d.GetSFLAData)
 
 	e.POST("/SFLA", d.WriteFromSFLA)
