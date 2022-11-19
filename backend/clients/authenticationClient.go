@@ -9,7 +9,7 @@ import (
 )
 
 func GetTokenSSO(code string) ([]byte, error) {
-	url := "https://sso.pea.co.th/auth/realms/idm/protocol/openid-connect/token?"
+	url := os.Getenv("SSO_TOKEN")
 	method := "POST"
 	payload := strings.NewReader(
 		"grant_type=authorization_code" +
@@ -26,7 +26,6 @@ func GetTokenSSO(code string) ([]byte, error) {
 	}
 	req.Header.Add("Accept", "application/json, text/plain, */*")
 	req.Header.Add("Connection", "keep-alive")
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	res, err := client.Do(req)
 	if err != nil {
