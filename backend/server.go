@@ -3,6 +3,7 @@ package main
 import (
 	d "backend/data"
 	rmdb "backend/db"
+	bearer "backend/middleware"
 	auth "backend/services"
 	"net/http"
 	"os"
@@ -28,6 +29,7 @@ func main() {
 	e := echo.New()
 
 	e.Use(middleware.CORS())
+	e.Pre(bearer.BearerToken)
 
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "None Action")
@@ -43,9 +45,11 @@ func main() {
 
 	e.GET("/auth/image/user", auth.GetImage)
 
-	e.GET("/SFLA", d.GetSFLAData)
+	sfla := e.Group("SFLA")
 
-	e.POST("/SFLA", d.WriteFromSFLA)
+	sfla.GET("/SFLA", d.GetSFLAData)
+
+	sfla.POST("/SFLA", d.WriteFromSFLA)
 
 	e.POST("/MJM", d.UpdateFromMJM)
 
